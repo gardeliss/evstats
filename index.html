@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Stats Greece - Ταξινομήσεις Ηλεκτρικών Αυτοκινήτων</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;600&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="grain-overlay"></div>
+    
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="logo">
+                    <span class="logo-icon">⚡</span>
+                    <span class="logo-text">EV Stats</span>
+                </h1>
+                <div class="header-meta">
+                    <div class="date-display" id="dateDisplay">
+                        <span class="date-label">Περίοδος</span>
+                        <span class="date-value" id="currentMonth">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <section class="hero">
+                <h2 class="hero-title">Ταξινομήσεις Ηλεκτρικών Αυτοκινήτων</h2>
+                <p class="hero-subtitle">Συγκεντρωτικά δεδομένα από το evstats.gr για τον τρέχοντα μήνα</p>
+            </section>
+
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCars">—</div>
+                    <div class="stat-label">Σύνολο Ταξινομήσεων</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalModels">—</div>
+                    <div class="stat-label">Διαφορετικά Μοντέλα</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="daysLoaded">—</div>
+                    <div class="stat-label">Ημέρες με Δεδομένα</div>
+                </div>
+            </div>
+
+            <div class="loading-container" id="loadingContainer">
+                <div class="loading-spinner"></div>
+                <p class="loading-text">Φόρτωση δεδομένων...</p>
+                <p class="loading-detail" id="loadingDetail">Ανάκτηση στοιχείων από evstats.gr</p>
+            </div>
+
+            <div class="error-container" id="errorContainer" style="display: none;">
+                <div class="error-icon">⚠️</div>
+                <p class="error-text" id="errorText"></p>
+                <button class="retry-button" onclick="location.reload()">Δοκιμάστε Ξανά</button>
+            </div>
+
+            <div class="results-container" id="resultsContainer" style="display: none;">
+                <div class="table-header">
+                    <h3 class="table-title">Κατάταξη Μοντέλων</h3>
+                    <div class="table-controls">
+                        <button class="control-button active" id="sortByCount" onclick="sortTable('count')">
+                            <span class="control-icon">📊</span> Αριθμός
+                        </button>
+                        <button class="control-button" id="sortByName" onclick="sortTable('name')">
+                            <span class="control-icon">🔤</span> Όνομα
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="models-table" id="modelsTable">
+                        <thead>
+                            <tr>
+                                <th class="rank-col">#</th>
+                                <th class="model-col">Μοντέλο</th>
+                                <th class="count-col">Ταξινομήσεις</th>
+                                <th class="bar-col">Κατανομή</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">
+                Δεδομένα από <a href="https://evstats.gr" target="_blank" rel="noopener">evstats.gr</a>
+                <span class="separator">•</span>
+                Τελευταία ενημέρωση: <span id="lastUpdate">—</span>
+            </p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
