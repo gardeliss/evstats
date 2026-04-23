@@ -11,8 +11,8 @@
     --color-warning: #f59e0b;
     --color-error: #ef4444;
     
-    --font-display: 'Unbounded', sans-serif;
-    --font-body: 'DM Sans', sans-serif;
+    --font-display: 'DM Serif Display', serif;
+    --font-body: 'Manrope', sans-serif;
     --font-mono: 'IBM Plex Mono', monospace;
     
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
