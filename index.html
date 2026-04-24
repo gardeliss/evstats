@@ -1,4 +1,3 @@
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <!DOCTYPE html>
 <html lang="el">
 <head>
@@ -8,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;600&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -35,6 +35,15 @@
             <section class="hero">
                 <h2 class="hero-title">Ταξινομήσεις Ηλεκτρικών Αυτοκινήτων</h2>
                 <p class="hero-subtitle">Δεδομένα από το evstats.gr</p>
+                
+                <!-- Info banner -->
+                <div class="info-banner" id="corsInfo" style="display: none;">
+                    <div class="info-icon">ℹ️</div>
+                    <div class="info-text">
+                        <strong>Σημείωση:</strong> Χρησιμοποιείται CORS proxy για την πρόσβαση στα δεδομένα. 
+                        Μπορεί να υπάρχει μικρή καθυστέρηση στη φόρτωση.
+                    </div>
+                </div>
             </section>
 
             <!-- Date Filter Section -->

@@ -1,5 +1,19 @@
 // Configuration
 const API_BASE_URL = 'https://evstats.gr/api/dailyBevModels';
+
+// CORS Proxy - Uncomment one of these if you get CORS errors:
+// Option 1: allOrigins (recommended)
+const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+
+// Option 2: corsproxy.io
+// const CORS_PROXY = 'https://corsproxy.io/?';
+
+// Option 3: cors-anywhere (may have rate limits)
+// const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
+
+// Set to true to use CORS proxy
+const USE_CORS_PROXY = true;
+
 let currentSortMode = 'count';
 let modelsData = [];
 
@@ -12,6 +26,14 @@ function initializeApp() {
     // Set today's date as default
     const today = new Date();
     document.getElementById('dateInput').valueAsDate = today;
+    
+    // Show CORS info if proxy is enabled
+    if (USE_CORS_PROXY) {
+        const corsInfo = document.getElementById('corsInfo');
+        if (corsInfo) {
+            corsInfo.style.display = 'flex';
+        }
+    }
     
     // Load monthly data on start
     loadMonthlyData();
@@ -270,10 +292,17 @@ async function fetchAllDaysData() {
 // Fetch data for a specific day
 async function fetchDayData(dateStr) {
     try {
-        const url = `${API_BASE_URL}/${dateStr}`;
+        let url = `${API_BASE_URL}/${dateStr}`;
+        
+        // Use CORS proxy if enabled
+        if (USE_CORS_PROXY) {
+            url = `${CORS_PROXY}${encodeURIComponent(url)}`;
+        }
+        
         const response = await fetch(url);
         
         if (!response.ok) {
+            console.warn(`HTTP ${response.status} for ${dateStr}`);
             return null;
         }
         
@@ -281,7 +310,7 @@ async function fetchDayData(dateStr) {
         return data;
         
     } catch (error) {
-        console.warn(`Failed to fetch data for ${dateStr}:`, error);
+        console.warn(`Failed to fetch data for ${dateStr}:`, error.message);
         return null;
     }
 }

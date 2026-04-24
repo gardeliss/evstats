@@ -119,6 +119,50 @@ php -S localhost:8000
 - Το API του evstats.gr μπορεί να μην έχει δεδομένα για όλες τις ημέρες
 - Η εφαρμογή είναι fully client-side (no backend required)
 
+## CORS & Troubleshooting
+
+### Τι είναι το CORS;
+Το evstats.gr API δεν επιτρέπει requests από άλλα domains (CORS policy). Για να λειτουργήσει το app στο GitHub Pages, χρησιμοποιούμε ένα **CORS proxy**.
+
+### Ρυθμίσεις στο app.js
+
+Στην αρχή του `app.js` υπάρχουν οι ρυθμίσεις:
+
+```javascript
+// Set to true to use CORS proxy
+const USE_CORS_PROXY = true;
+```
+
+**Αν έχεις CORS errors:**
+1. Βεβαιώσου ότι το `USE_CORS_PROXY = true`
+2. Δοκίμασε διαφορετικό proxy αν το πρώτο δεν δουλεύει
+
+**Διαθέσιμα CORS Proxies:**
+- `https://api.allorigins.win/raw?url=` (προτεινόμενο)
+- `https://corsproxy.io/?`
+- `https://cors-anywhere.herokuapp.com/`
+
+### Αν δεν δουλεύει κανένα proxy:
+
+**Επιλογή 1: Τοπικό testing**
+```bash
+# Disable CORS στο Chrome (μόνο για testing!)
+chrome.exe --user-data-dir="C:/Chrome dev session" --disable-web-security
+```
+
+**Επιλογή 2: Backend proxy**
+Φτιάξε ένα απλό backend (π.χ. Cloudflare Worker) που κάνει fetch το API και το σερβίρει με CORS headers.
+
+**Επιλογή 3: Browser Extension**
+Εγκατέστησε ένα CORS extension στο browser σου (μόνο για development).
+
+### Πώς να ελέγξεις αν λειτουργεί:
+
+1. Άνοιξε το DevTools (F12)
+2. Πήγαινε στο Console tab
+3. Αν βλέπεις `CORS policy` errors, χρειάζεσαι το proxy
+4. Αν βλέπεις `200 OK` responses, όλα δουλεύουν!
+
 ## Credits
 
 Δεδομένα από [evstats.gr](https://evstats.gr)
