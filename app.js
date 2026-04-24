@@ -1,21 +1,14 @@
 // Configuration
 const API_BASE_URL = 'https://evstats-sgar.st-gardelis.workers.dev';
-const MAKERS_API_URL = 'https://evstats.gr/api/makerMetrics';
+const MAKERS_API_URL = 'https://evstats-sgar.st-gardelis.workers.dev/makerMetrics';
 
 // Makers to track
 const MAKERS = ["total", "byd", "tesla", "volvo", "hyundai", "geely", "leapmotor", "volkswagen", "bmw", "changan deepal"];
 
-// CORS Proxy - Try different ones if one doesn't work
-// Option 1: corsproxy.io (recommended - most reliable)
-const CORS_PROXY = 'https://corsproxy.io/?';
+// CORS Proxy - Not needed when using Cloudflare Worker
+const CORS_PROXY = '';
 
-// Option 2: allOrigins (may have 502 errors)
-// const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
-
-// Option 3: thingproxy
-// const CORS_PROXY = 'https://thingproxy.freeboard.io/fetch/';
-
-// Set to true to use CORS proxy
+// Set to false since we're using Cloudflare Worker
 const USE_CORS_PROXY = false;
 
 let currentSortMode = 'count';
@@ -32,14 +25,6 @@ function initializeApp() {
     // Set today's date as default
     const today = new Date();
     document.getElementById('dateInput').valueAsDate = today;
-    
-    // Show CORS info if proxy is enabled
-    if (USE_CORS_PROXY) {
-        const corsInfo = document.getElementById('corsInfo');
-        if (corsInfo) {
-            corsInfo.style.display = 'flex';
-        }
-    }
     
     // Load monthly data on start
     loadMonthlyData();
@@ -300,46 +285,23 @@ async function fetchAllDaysData() {
 
 // Fetch data for a specific day
 async function fetchDayData(dateStr) {
-    // List of CORS proxies to try (in order)
-    const proxies = [
-        'https://corsproxy.io/?',
-        'https://api.allorigins.win/raw?url=',
-        'https://thingproxy.freeboard.io/fetch/',
-    ];
-    
-    const directUrl = `${API_BASE_URL}/${dateStr}`;
-    
-    // Try direct access first (if not using proxy)
-    if (!USE_CORS_PROXY) {
-        try {
-            const response = await fetch(directUrl);
-            if (response.ok) {
-                return await response.json();
-            }
-        } catch (error) {
-            console.warn('Direct access failed, trying proxies...');
+    try {
+        const url = `${API_BASE_URL}/${dateStr}`;
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            console.warn(`HTTP ${response.status} for ${dateStr}`);
+            return null;
         }
+        
+        const data = await response.json();
+        console.log(`✅ Success fetching ${dateStr}`);
+        return data;
+        
+    } catch (error) {
+        console.warn(`Failed to fetch data for ${dateStr}:`, error.message);
+        return null;
     }
-    
-    // Try each proxy
-    for (const proxy of proxies) {
-        try {
-            const url = `${proxy}${encodeURIComponent(directUrl)}`;
-            const response = await fetch(url);
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log(`✅ Success with proxy: ${proxy}`);
-                return data;
-            }
-        } catch (error) {
-            console.warn(`❌ Proxy failed: ${proxy}`, error.message);
-            continue;
-        }
-    }
-    
-    console.error(`All proxies failed for ${dateStr}`);
-    return null;
 }
 
 // Update stats display
@@ -544,43 +506,22 @@ async function loadMakersData(timePeriod) {
 
 // Fetch makers API
 async function fetchMakersAPI(url) {
-    const proxies = [
-        'https://corsproxy.io/?',
-        'https://api.allorigins.win/raw?url=',
-        'https://thingproxy.freeboard.io/fetch/',
-    ];
-    
-    // Try direct access first
-    if (!USE_CORS_PROXY) {
-        try {
-            const response = await fetch(url);
-            if (response.ok) {
-                return await response.json();
-            }
-        } catch (error) {
-            console.warn('Direct access failed, trying proxies...');
+    try {
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            console.error(`HTTP ${response.status} for makers API`);
+            return null;
         }
+        
+        const data = await response.json();
+        console.log(`✅ Makers API success`);
+        return data;
+        
+    } catch (error) {
+        console.error('Failed to fetch makers data:', error.message);
+        return null;
     }
-    
-    // Try each proxy
-    for (const proxy of proxies) {
-        try {
-            const proxyUrl = `${proxy}${encodeURIComponent(url)}`;
-            const response = await fetch(proxyUrl);
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log(`✅ Makers API success with proxy: ${proxy}`);
-                return data;
-            }
-        } catch (error) {
-            console.warn(`❌ Proxy failed: ${proxy}`, error.message);
-            continue;
-        }
-    }
-    
-    console.error('All proxies failed for makers API');
-    return null;
 }
 
 // Render makers chart
