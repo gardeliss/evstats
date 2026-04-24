@@ -1,5 +1,9 @@
 // Configuration
-const API_BASE_URL = 'https://evstats-sgar.st-gardelis.workers.dev/';
+const API_BASE_URL = 'https://evstats.gr/api/dailyBevModels';
+const MAKERS_API_URL = 'https://evstats.gr/api/makerMetrics';
+
+// Makers to track
+const MAKERS = ["total", "byd", "tesla", "volvo", "hyundai", "geely", "leapmotor", "volkswagen", "bmw", "changan deepal"];
 
 // CORS Proxy - Try different ones if one doesn't work
 // Option 1: corsproxy.io (recommended - most reliable)
@@ -12,10 +16,12 @@ const CORS_PROXY = 'https://corsproxy.io/?';
 // const CORS_PROXY = 'https://thingproxy.freeboard.io/fetch/';
 
 // Set to true to use CORS proxy
-const USE_CORS_PROXY = false;
+const USE_CORS_PROXY = true;
 
 let currentSortMode = 'count';
 let modelsData = [];
+let monthlyTotalCars = 0; // Track total for percentage calculation
+let currentMakersTab = 'monthly';
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
@@ -38,6 +44,9 @@ function initializeApp() {
     // Load monthly data on start
     loadMonthlyData();
     updateCurrentMonth();
+    
+    // Load makers data
+    loadMakersData('monthly');
 }
 
 // Get current month and year
@@ -346,11 +355,15 @@ function renderTable(models) {
     tbody.innerHTML = '';
     
     if (models.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 3rem; color: var(--color-text-muted);">Δεν υπάρχουν δεδομένα</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 3rem; color: var(--color-text-muted);">Δεν υπάρχουν δεδομένα</td></tr>';
         return;
     }
     
     const maxCount = models[0].count;
+    
+    // Calculate total for percentages
+    const total = models.reduce((sum, model) => sum + model.count, 0);
+    monthlyTotalCars = total;
     
     models.forEach((model, index) => {
         const tr = document.createElement('tr');
@@ -379,6 +392,15 @@ function renderTable(models) {
         countTd.appendChild(countSpan);
         tr.appendChild(countTd);
         
+        // Percentage
+        const percentTd = document.createElement('td');
+        const percentSpan = document.createElement('span');
+        percentSpan.className = 'percentage';
+        const percentage = ((model.count / total) * 100).toFixed(2);
+        percentSpan.textContent = `${percentage}%`;
+        percentTd.appendChild(percentSpan);
+        tr.appendChild(percentTd);
+        
         // Bar
         const barTd = document.createElement('td');
         barTd.className = 'bar-col';
@@ -386,10 +408,16 @@ function renderTable(models) {
         barContainer.className = 'bar-container';
         const barFill = document.createElement('div');
         barFill.className = 'bar-fill';
-        const percentage = (model.count / maxCount) * 100;
+        const barPercentage = (model.count / maxCount) * 100;
+        
+        // Add percentage label inside bar
+        const barLabel = document.createElement('span');
+        barLabel.className = 'maker-bar-label';
+        barLabel.textContent = `${percentage}%`;
+        barFill.appendChild(barLabel);
         
         setTimeout(() => {
-            barFill.style.width = `${percentage}%`;
+            barFill.style.width = `${barPercentage}%`;
         }, 50 + index * 30);
         
         barContainer.appendChild(barFill);
@@ -459,4 +487,239 @@ function showError(message) {
     document.getElementById('loadingContainer').style.display = 'none';
     document.getElementById('errorContainer').style.display = 'block';
     document.getElementById('errorText').textContent = message;
+}
+
+// Toggle collapsible sections
+function toggleSection(contentId, chevronId) {
+    const content = document.getElementById(contentId);
+    const chevron = document.getElementById(chevronId);
+    
+    if (content.classList.contains('expanded')) {
+        content.classList.remove('expanded');
+        chevron.classList.add('rotated');
+    } else {
+        content.classList.add('expanded');
+        chevron.classList.remove('rotated');
+    }
+}
+
+// Switch makers tab
+function switchMakersTab(tab) {
+    currentMakersTab = tab;
+    
+    // Update tab buttons
+    document.getElementById('monthlyTab').classList.toggle('active', tab === 'monthly');
+    document.getElementById('yearlyTab').classList.toggle('active', tab === 'yearly');
+    
+    // Load data
+    loadMakersData(tab);
+}
+
+// Load makers data
+async function loadMakersData(timePeriod) {
+    try {
+        document.getElementById('makersLoading').style.display = 'block';
+        document.getElementById('makersContent').style.display = 'none';
+        
+        const makersParam = encodeURIComponent(JSON.stringify(MAKERS));
+        const url = `${MAKERS_API_URL}?filterMakers=${makersParam}&timePeriod=${timePeriod}`;
+        
+        const data = await fetchMakersAPI(url);
+        
+        if (!data) {
+            console.error('No makers data received');
+            return;
+        }
+        
+        renderMakersChart(data, timePeriod);
+        
+        document.getElementById('makersLoading').style.display = 'none';
+        document.getElementById('makersContent').style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error loading makers data:', error);
+        document.getElementById('makersLoading').style.display = 'none';
+    }
+}
+
+// Fetch makers API
+async function fetchMakersAPI(url) {
+    const proxies = [
+        'https://corsproxy.io/?',
+        'https://api.allorigins.win/raw?url=',
+        'https://thingproxy.freeboard.io/fetch/',
+    ];
+    
+    // Try direct access first
+    if (!USE_CORS_PROXY) {
+        try {
+            const response = await fetch(url);
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.warn('Direct access failed, trying proxies...');
+        }
+    }
+    
+    // Try each proxy
+    for (const proxy of proxies) {
+        try {
+            const proxyUrl = `${proxy}${encodeURIComponent(url)}`;
+            const response = await fetch(proxyUrl);
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log(`✅ Makers API success with proxy: ${proxy}`);
+                return data;
+            }
+        } catch (error) {
+            console.warn(`❌ Proxy failed: ${proxy}`, error.message);
+            continue;
+        }
+    }
+    
+    console.error('All proxies failed for makers API');
+    return null;
+}
+
+// Render makers chart
+function renderMakersChart(data, timePeriod) {
+    const chartContainer = document.getElementById('makersChart');
+    
+    // Get the latest period data
+    const periods = data.periods || [];
+    const latestPeriodIndex = periods.length - 1;
+    
+    if (latestPeriodIndex < 0) {
+        chartContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--color-text-muted);">Δεν υπάρχουν δεδομένα</p>';
+        return;
+    }
+    
+    const latestPeriod = periods[latestPeriodIndex];
+    
+    // Create chart HTML
+    let html = `
+        <div class="period-selector">
+            <span class="period-label">Περίοδος:</span>
+            <select class="period-dropdown" onchange="updateMakersPeriod(this.value)">
+    `;
+    
+    // Add period options (last 12 for monthly, all for yearly)
+    const displayPeriods = timePeriod === 'month' 
+        ? periods.slice(-12) 
+        : periods;
+    
+    displayPeriods.forEach((period, idx) => {
+        const actualIdx = timePeriod === 'month' 
+            ? periods.length - 12 + idx 
+            : idx;
+        const selected = actualIdx === latestPeriodIndex ? 'selected' : '';
+        html += `<option value="${actualIdx}" ${selected}>${formatPeriod(period, timePeriod)}</option>`;
+    });
+    
+    html += `
+            </select>
+        </div>
+        <div class="makers-chart-wrapper" id="makersChartContent">
+    `;
+    
+    // Get data for latest period and sort by value
+    const makersWithValues = MAKERS
+        .filter(maker => maker !== 'total') // Exclude total from chart
+        .map(maker => {
+            const values = data.data[maker] || [];
+            const value = values[latestPeriodIndex] || 0;
+            return { maker, value };
+        })
+        .filter(item => item.value > 0) // Only show makers with data
+        .sort((a, b) => b.value - a.value);
+    
+    const maxValue = Math.max(...makersWithValues.map(item => item.value), 1);
+    
+    // Render each maker
+    makersWithValues.forEach(({ maker, value }) => {
+        const percentage = (value / maxValue) * 100;
+        const displayName = maker.toUpperCase();
+        
+        html += `
+            <div class="maker-row">
+                <div class="maker-name">${displayName}</div>
+                <div class="maker-bar-container">
+                    <div class="maker-bar-fill" style="width: ${percentage}%;">
+                        <span class="maker-bar-label">${value.toLocaleString('el-GR')}</span>
+                    </div>
+                </div>
+                <div class="maker-value">${value.toLocaleString('el-GR')}</div>
+            </div>
+        `;
+    });
+    
+    html += `</div>`;
+    
+    chartContainer.innerHTML = html;
+    
+    // Store data globally for period updates
+    window.currentMakersData = data;
+    window.currentMakersTimePeriod = timePeriod;
+}
+
+// Update makers chart for different period
+function updateMakersPeriod(periodIndex) {
+    const data = window.currentMakersData;
+    const timePeriod = window.currentMakersTimePeriod;
+    
+    if (!data) return;
+    
+    const chartContent = document.getElementById('makersChartContent');
+    const periods = data.periods || [];
+    const idx = parseInt(periodIndex);
+    
+    // Get data for selected period
+    const makersWithValues = MAKERS
+        .filter(maker => maker !== 'total')
+        .map(maker => {
+            const values = data.data[maker] || [];
+            const value = values[idx] || 0;
+            return { maker, value };
+        })
+        .filter(item => item.value > 0)
+        .sort((a, b) => b.value - a.value);
+    
+    const maxValue = Math.max(...makersWithValues.map(item => item.value), 1);
+    
+    let html = '';
+    makersWithValues.forEach(({ maker, value }) => {
+        const percentage = (value / maxValue) * 100;
+        const displayName = maker.toUpperCase();
+        
+        html += `
+            <div class="maker-row">
+                <div class="maker-name">${displayName}</div>
+                <div class="maker-bar-container">
+                    <div class="maker-bar-fill" style="width: ${percentage}%;">
+                        <span class="maker-bar-label">${value.toLocaleString('el-GR')}</span>
+                    </div>
+                </div>
+                <div class="maker-value">${value.toLocaleString('el-GR')}</div>
+            </div>
+        `;
+    });
+    
+    chartContent.innerHTML = html;
+}
+
+// Format period for display
+function formatPeriod(period, timePeriod) {
+    if (timePeriod === 'year') {
+        return period; // Just the year
+    } else {
+        // Format YYYY-MM to "Month Year"
+        const [year, month] = period.split('-');
+        const monthNames = [
+            'Ιαν', 'Φεβ', 'Μάρ', 'Απρ', 'Μάι', 'Ιούν',
+            'Ιούλ', 'Αύγ', 'Σεπ', 'Οκτ', 'Νοέ', 'Δεκ'
+        ];
+        return `${monthNames[parseInt(month) - 1]} ${year}`;
+    }
 }
