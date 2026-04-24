@@ -470,8 +470,8 @@ function switchMakersTab(tab) {
     currentMakersTab = tab;
     
     // Update tab buttons
-    document.getElementById('monthlyTab').classList.toggle('active', tab === 'monthly');
-    document.getElementById('yearlyTab').classList.toggle('active', tab === 'yearly');
+    document.getElementById('monthlyTab').classList.toggle('active', tab === 'month');
+    document.getElementById('yearlyTab').classList.toggle('active', tab === 'year');
     
     // Load data
     loadMakersData(tab);
