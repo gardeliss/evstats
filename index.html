@@ -65,37 +65,31 @@
 
             <!-- Daily Results Section -->
             <div class="daily-results" id="dailyResults" style="display: none;">
-                <div class="section-header collapsible-header" onclick="toggleSection('dailyContent', 'dailyChevron')">
-                    <div class="section-header-left">
-                        <h3 class="section-title">📅 Αποτελέσματα Ημέρας</h3>
-                        <span class="selected-date" id="selectedDate"></span>
-                    </div>
-                    <span class="chevron" id="dailyChevron">▼</span>
+                <div class="section-header">
+                    <h3 class="section-title">📅 Αποτελέσματα Ημέρας</h3>
+                    <span class="selected-date" id="selectedDate"></span>
                 </div>
-                
-                <div class="collapsible-content expanded" id="dailyContent">
-                    <div class="daily-stats-grid">
-                        <div class="daily-stat-card">
-                            <div class="daily-stat-value" id="dailyTotal">0</div>
-                            <div class="daily-stat-label">Ταξινομήσεις</div>
-                        </div>
-                        <div class="daily-stat-card">
-                            <div class="daily-stat-value" id="dailyModels">0</div>
-                            <div class="daily-stat-label">Μοντέλα</div>
-                        </div>
+                <div class="daily-stats-grid">
+                    <div class="daily-stat-card">
+                        <div class="daily-stat-value" id="dailyTotal">0</div>
+                        <div class="daily-stat-label">Ταξινομήσεις</div>
                     </div>
-                    <div class="table-wrapper scrollable-table">
-                        <table class="models-table">
-                            <thead>
-                                <tr>
-                                    <th class="rank-col">#</th>
-                                    <th class="model-col">Μοντέλο</th>
-                                    <th class="count-col">Αριθμός</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dailyTableBody"></tbody>
-                        </table>
+                    <div class="daily-stat-card">
+                        <div class="daily-stat-value" id="dailyModels">0</div>
+                        <div class="daily-stat-label">Μοντέλα</div>
                     </div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="models-table">
+                        <thead>
+                            <tr>
+                                <th class="rank-col">#</th>
+                                <th class="model-col">Μοντέλο</th>
+                                <th class="count-col">Αριθμός</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dailyTableBody"></tbody>
+                    </table>
                 </div>
             </div>
 
@@ -150,14 +144,13 @@
                     </div>
                 </div>
 
-                <div class="table-wrapper scrollable-table">
+                <div class="table-wrapper">
                     <table class="models-table" id="modelsTable">
                         <thead>
                             <tr>
                                 <th class="rank-col">#</th>
                                 <th class="model-col">Μοντέλο</th>
                                 <th class="count-col">Ταξινομήσεις</th>
-                                <th class="percent-col">Ποσοστό</th>
                                 <th class="bar-col">Κατανομή</th>
                             </tr>
                         </thead>
@@ -165,31 +158,6 @@
                             <!-- Data will be inserted here -->
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            <!-- Makers Section -->
-            <div class="makers-section" id="makersSection">
-                <div class="section-header">
-                    <h3 class="section-title">🏭 Στατιστικά Κατασκευαστών</h3>
-                </div>
-
-                <div class="makers-tabs">
-                    <button class="tab-button active" id="monthlyTab" onclick="switchMakersTab('monthly')">
-                        Μηνιαία
-                    </button>
-                    <button class="tab-button" id="yearlyTab" onclick="switchMakersTab('yearly')">
-                        Ετήσια
-                    </button>
-                </div>
-
-                <div class="loading-container" id="makersLoading" style="display: none;">
-                    <div class="loading-spinner"></div>
-                    <p class="loading-text">Φόρτωση δεδομένων κατασκευαστών...</p>
-                </div>
-
-                <div class="makers-content" id="makersContent">
-                    <div class="chart-container" id="makersChart"></div>
                 </div>
             </div>
         </div>
