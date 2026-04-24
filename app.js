@@ -1,15 +1,15 @@
 // Configuration
 const API_BASE_URL = 'https://evstats.gr/api/dailyBevModels';
 
-// CORS Proxy - Uncomment one of these if you get CORS errors:
-// Option 1: allOrigins (recommended)
-const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+// CORS Proxy - Try different ones if one doesn't work
+// Option 1: corsproxy.io (recommended - most reliable)
+const CORS_PROXY = 'https://corsproxy.io/?';
 
-// Option 2: corsproxy.io
-// const CORS_PROXY = 'https://corsproxy.io/?';
+// Option 2: allOrigins (may have 502 errors)
+// const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 
-// Option 3: cors-anywhere (may have rate limits)
-// const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
+// Option 3: thingproxy
+// const CORS_PROXY = 'https://thingproxy.freeboard.io/fetch/';
 
 // Set to true to use CORS proxy
 const USE_CORS_PROXY = true;
@@ -291,28 +291,46 @@ async function fetchAllDaysData() {
 
 // Fetch data for a specific day
 async function fetchDayData(dateStr) {
-    try {
-        let url = `${API_BASE_URL}/${dateStr}`;
-        
-        // Use CORS proxy if enabled
-        if (USE_CORS_PROXY) {
-            url = `${CORS_PROXY}${encodeURIComponent(url)}`;
+    // List of CORS proxies to try (in order)
+    const proxies = [
+        'https://corsproxy.io/?',
+        'https://api.allorigins.win/raw?url=',
+        'https://thingproxy.freeboard.io/fetch/',
+    ];
+    
+    const directUrl = `${API_BASE_URL}/${dateStr}`;
+    
+    // Try direct access first (if not using proxy)
+    if (!USE_CORS_PROXY) {
+        try {
+            const response = await fetch(directUrl);
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.warn('Direct access failed, trying proxies...');
         }
-        
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-            console.warn(`HTTP ${response.status} for ${dateStr}`);
-            return null;
-        }
-        
-        const data = await response.json();
-        return data;
-        
-    } catch (error) {
-        console.warn(`Failed to fetch data for ${dateStr}:`, error.message);
-        return null;
     }
+    
+    // Try each proxy
+    for (const proxy of proxies) {
+        try {
+            const url = `${proxy}${encodeURIComponent(directUrl)}`;
+            const response = await fetch(url);
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log(`✅ Success with proxy: ${proxy}`);
+                return data;
+            }
+        } catch (error) {
+            console.warn(`❌ Proxy failed: ${proxy}`, error.message);
+            continue;
+        }
+    }
+    
+    console.error(`All proxies failed for ${dateStr}`);
+    return null;
 }
 
 // Update stats display
