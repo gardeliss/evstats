@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = 'https://evstats.gr/api/dailyBevModels';
+const API_BASE_URL = 'https://evstats-sgar.st-gardelis.workers.dev/';
 
 // CORS Proxy - Try different ones if one doesn't work
 // Option 1: corsproxy.io (recommended - most reliable)
@@ -12,7 +12,7 @@ const CORS_PROXY = 'https://corsproxy.io/?';
 // const CORS_PROXY = 'https://thingproxy.freeboard.io/fetch/';
 
 // Set to true to use CORS proxy
-const USE_CORS_PROXY = true;
+const USE_CORS_PROXY = false;
 
 let currentSortMode = 'count';
 let modelsData = [];
