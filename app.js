@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = 'https://evstats.gr/api/dailyBevModels';
+const API_BASE_URL = 'https://evstats-sgar.st-gardelis.workers.dev/';
 const MAKERS_API_URL = 'https://evstats.gr/api/makerMetrics';
 
 // Makers to track
@@ -16,7 +16,7 @@ const CORS_PROXY = 'https://corsproxy.io/?';
 // const CORS_PROXY = 'https://thingproxy.freeboard.io/fetch/';
 
 // Set to true to use CORS proxy
-const USE_CORS_PROXY = true;
+const USE_CORS_PROXY = false;
 
 let currentSortMode = 'count';
 let modelsData = [];
