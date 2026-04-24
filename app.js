@@ -14,7 +14,7 @@ const USE_CORS_PROXY = false;
 let currentSortMode = 'count';
 let modelsData = [];
 let monthlyTotalCars = 0; // Track total for percentage calculation
-let currentMakersTab = 'monthly';
+let currentMakersTab = 'month';
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
@@ -470,8 +470,8 @@ function switchMakersTab(tab) {
     currentMakersTab = tab;
     
     // Update tab buttons
-    document.getElementById('monthlyTab').classList.toggle('active', tab === 'month');
-    document.getElementById('yearlyTab').classList.toggle('active', tab === 'year');
+    document.getElementById('monthlyTab').classList.toggle('active', tab === 'monthly');
+    document.getElementById('yearlyTab').classList.toggle('active', tab === 'yearly');
     
     // Load data
     loadMakersData(tab);
