@@ -30,7 +30,8 @@ function initializeApp() {
     loadMonthlyData();
     updateCurrentMonth();
     
-    // Load makers data - use 'month' for API
+    // Load makers data - use 'month' for API, but track as 'monthly' internally
+    currentMakersTab = 'monthly';
     loadMakersData('month');
 }
 
@@ -467,6 +468,11 @@ function toggleSection(contentId, chevronId) {
 
 // Switch makers tab
 function switchMakersTab(tab) {
+    // Prevent double-clicking the same tab
+    if (currentMakersTab === tab) {
+        return;
+    }
+    
     currentMakersTab = tab;
     
     // Update tab buttons
@@ -676,4 +682,127 @@ function formatPeriod(period, timePeriod) {
         return `${monthNames[parseInt(month) - 1]} ${year}`;
     }
     return period;
+}
+
+// ========================
+// CSV Export Functions
+// ========================
+
+// Helper function to download CSV
+function downloadCSV(filename, csvContent) {
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Export daily results to CSV
+function exportDailyToCSV(event) {
+    // Stop propagation to prevent collapsing the section
+    event.stopPropagation();
+    
+    const dateStr = document.getElementById('dateInput').value;
+    const tbody = document.getElementById('dailyTableBody');
+    const rows = tbody.querySelectorAll('tr');
+    
+    if (rows.length === 0) {
+        alert('Δεν υπάρχουν δεδομένα για εξαγωγή');
+        return;
+    }
+    
+    // CSV Header
+    let csv = 'Κατάταξη,Μοντέλο,Ταξινομήσεις\n';
+    
+    // CSV Data
+    rows.forEach((row) => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 3) {
+            const rank = cells[0].textContent.trim();
+            const model = cells[1].textContent.trim();
+            const count = cells[2].textContent.trim();
+            csv += `${rank},"${model}",${count}\n`;
+        }
+    });
+    
+    const filename = `evstats-ημερα-${dateStr}.csv`;
+    downloadCSV(filename, csv);
+}
+
+// Export monthly results to CSV
+function exportMonthlyToCSV() {
+    const tbody = document.getElementById('tableBody');
+    const rows = tbody.querySelectorAll('tr');
+    
+    if (rows.length === 0) {
+        alert('Δεν υπάρχουν δεδομένα για εξαγωγή');
+        return;
+    }
+    
+    // Get current month for filename
+    const { year, month } = getCurrentMonthDates();
+    const monthNames = [
+        'Ιανουάριος', 'Φεβρουάριος', 'Μάρτιος', 'Απρίλιος', 'Μάιος', 'Ιούνιος',
+        'Ιούλιος', 'Αύγουστος', 'Σεπτέμβριος', 'Οκτώβριος', 'Νοέμβριος', 'Δεκέμβριος'
+    ];
+    
+    // CSV Header
+    let csv = 'Κατάταξη,Μοντέλο,Ταξινομήσεις,Ποσοστό\n';
+    
+    // CSV Data
+    rows.forEach((row) => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 4) {
+            const rank = cells[0].textContent.trim();
+            const model = cells[1].textContent.trim();
+            const count = cells[2].textContent.trim();
+            const percent = cells[3].textContent.trim();
+            csv += `${rank},"${model}",${count},${percent}\n`;
+        }
+    });
+    
+    const filename = `evstats-μηνας-${monthNames[month]}-${year}.csv`;
+    downloadCSV(filename, csv);
+}
+
+// Export makers data to CSV
+function exportMakersToCSV() {
+    const data = window.currentMakersData;
+    const timePeriod = window.currentMakersTimePeriod;
+    
+    if (!data || !data.periods) {
+        alert('Δεν υπάρχουν δεδομένα για εξαγωγή');
+        return;
+    }
+    
+    const periods = data.periods;
+    
+    // CSV Header - Periods as columns
+    let csv = 'Κατασκευαστής';
+    periods.forEach(period => {
+        csv += `,${formatPeriod(period, timePeriod)}`;
+    });
+    csv += '\n';
+    
+    // CSV Data - Each maker as a row
+    MAKERS.forEach(maker => {
+        const values = data.data[maker] || [];
+        const displayName = maker.toUpperCase();
+        
+        csv += `"${displayName}"`;
+        values.forEach(value => {
+            csv += `,${value || 0}`;
+        });
+        csv += '\n';
+    });
+    
+    const timePeriodLabel = timePeriod === 'month' ? 'μηνιαια' : 'ετησια';
+    const filename = `evstats-κατασκευαστες-${timePeriodLabel}.csv`;
+    downloadCSV(filename, csv);
 }

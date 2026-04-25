@@ -61,7 +61,12 @@
                         <h3 class="section-title">📅 Αποτελέσματα Ημέρας</h3>
                         <span class="selected-date" id="selectedDate"></span>
                     </div>
-                    <span class="chevron" id="dailyChevron">▼</span>
+                    <div class="section-actions">
+                        <button class="export-button" onclick="exportDailyToCSV(event)" title="Εξαγωγή σε CSV">
+                            <span class="export-icon">📥</span> CSV
+                        </button>
+                        <span class="chevron" id="dailyChevron">▼</span>
+                    </div>
                 </div>
                 
                 <div class="collapsible-content expanded" id="dailyContent">
@@ -132,6 +137,9 @@
                 <div class="table-header">
                     <h3 class="table-title">Κατάταξη Μοντέλων (Μηνιαία)</h3>
                     <div class="table-controls">
+                        <button class="export-button" onclick="exportMonthlyToCSV()" title="Εξαγωγή σε CSV">
+                            <span class="export-icon">📥</span> CSV
+                        </button>
                         <button class="control-button active" id="sortByCount" onclick="sortTable('count')">
                             <span class="control-icon">📊</span> Αριθμός
                         </button>
@@ -163,13 +171,16 @@
             <div class="makers-section" id="makersSection">
                 <div class="section-header">
                     <h3 class="section-title">🏭 Στατιστικά Κατασκευαστών</h3>
+                    <button class="export-button" onclick="exportMakersToCSV()" title="Εξαγωγή σε CSV">
+                        <span class="export-icon">📥</span> CSV
+                    </button>
                 </div>
 
                 <div class="makers-tabs">
-                    <button class="tab-button active" id="monthlyTab" onclick="switchMakersTab('month')">
+                    <button class="tab-button active" id="monthlyTab" onclick="switchMakersTab('monthly')">
                         Μηνιαία
                     </button>
-                    <button class="tab-button" id="yearlyTab" onclick="switchMakersTab('year')">
+                    <button class="tab-button" id="yearlyTab" onclick="switchMakersTab('yearly')">
                         Ετήσια
                     </button>
                 </div>
