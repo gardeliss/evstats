@@ -386,6 +386,7 @@ body {
     letter-spacing: 0.1em;
     color: var(--color-text-secondary);
     font-family: var(--font-mono);
+    white-space: nowrap;
 }
 
 .models-table tbody tr {
@@ -411,6 +412,7 @@ body {
 
 .models-table td {
     padding: 1.25rem 1.5rem;
+    vertical-align: middle;
 }
 
 .rank-col {
@@ -423,6 +425,13 @@ body {
 
 .bar-col {
     width: 250px;
+}
+
+.model-col {
+    /* Allow wrapping on long model names */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 250px;
 }
 
 .rank {
@@ -743,41 +752,244 @@ body {
     }
     
     .hero-title {
-        font-size: 2.5rem;
+        font-size: 2rem;
     }
     
     .hero-subtitle {
-        font-size: 1rem;
+        font-size: 0.875rem;
     }
     
     .stats-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        padding: 1.5rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
     }
     
     .table-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 1rem;
     }
     
+    .table-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .control-button {
+        flex: 1;
+        justify-content: center;
+    }
+    
+    /* Hide bar column on mobile */
     .bar-col {
-        display: none;
+        display: none !important;
     }
     
+    /* Show percentage column on mobile */
     .percent-col {
-        display: none;
+        display: table-cell !important;
     }
     
     .models-table th,
     .models-table td {
-        padding: 1rem;
+        padding: 0.875rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .rank-col {
+        width: 50px;
+    }
+    
+    .count-col {
+        width: 90px;
+    }
+    
+    .percent-col {
+        width: 80px;
+    }
+    
+    .model-col {
+        font-size: 0.8rem;
+    }
+    
+    .rank {
+        font-size: 1rem;
+    }
+    
+    .rank.top-3 {
+        font-size: 1.25rem;
+    }
+    
+    .count {
+        font-size: 1rem;
+    }
+    
+    .percentage {
+        font-size: 0.875rem;
     }
     
     .logo {
-        font-size: 1.5rem;
+        font-size: 1.25rem;
     }
     
     .logo-icon {
+        font-size: 1.75rem;
+    }
+    
+    .header-meta {
+        display: none;
+    }
+    
+    /* Filter section mobile */
+    .filter-controls {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .input-group {
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .search-button {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Daily results mobile */
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .section-header-left {
+        width: 100%;
+    }
+    
+    .section-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+    }
+    
+    .selected-date {
+        font-size: 0.875rem;
+        padding: 0.375rem 0.75rem;
+    }
+    
+    .daily-stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .daily-stat-value {
         font-size: 2rem;
+    }
+    
+    /* Makers section mobile */
+    .makers-tabs {
+        gap: 0;
+    }
+    
+    .tab-button {
+        flex: 1;
+        padding: 0.875rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .maker-row {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem 0;
+        align-items: flex-start;
+    }
+    
+    .maker-name {
+        width: 100%;
+        min-width: 100%;
+        font-size: 0.8rem;
+    }
+    
+    .maker-bar-container {
+        width: 100%;
+        height: 28px;
+    }
+    
+    .maker-bar-label {
+        font-size: 0.75rem;
+    }
+    
+    .maker-value {
+        width: 100%;
+        text-align: left;
+        font-size: 0.875rem;
+        min-width: auto;
+    }
+    
+    .period-dropdown {
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .period-selector {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    /* Export buttons mobile */
+    .export-button {
+        padding: 0.5rem 0.875rem;
+        font-size: 0.75rem;
+    }
+    
+    .export-icon {
+        font-size: 0.875rem;
+    }
+    
+    /* Scrollable table adjustments */
+    .scrollable-table {
+        max-height: 450px;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 1.75rem;
+    }
+    
+    .models-table th,
+    .models-table td {
+        padding: 0.75rem 0.375rem;
+        font-size: 0.8rem;
+    }
+    
+    .rank-col {
+        width: 40px;
+    }
+    
+    .count-col {
+        width: 80px;
+    }
+    
+    .percent-col {
+        width: 70px;
+    }
+    
+    .model-name {
+        font-size: 0.75rem;
+        line-height: 1.3;
     }
 }
 

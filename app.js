@@ -3,7 +3,7 @@ const API_BASE_URL = 'https://evstats-sgar.st-gardelis.workers.dev';
 const MAKERS_API_URL = 'https://evstats-sgar.st-gardelis.workers.dev/makerMetrics';
 
 // Makers to track
-const MAKERS = ["total", "byd", "tesla", "volvo", "hyundai", "geely", "leapmotor", "volkswagen", "bmw", "changan deepal"];
+const MAKERS = ["total", "byd", "tesla", "toyota", "kia", "volvo", "hyundai", "geely", "leapmotor", "volkswagen", "bmw", "changan deepal"];
 
 // CORS Proxy - Not needed when using Cloudflare Worker
 const CORS_PROXY = '';
@@ -15,6 +15,21 @@ let currentSortMode = 'count';
 let modelsData = [];
 let monthlyTotalCars = 0; // Track total for percentage calculation
 let currentMakersTab = 'monthly';
+
+// Function to normalize LEAPMOTOR model names
+function normalizeModelName(modelName) {
+    const trimmed = modelName.trim();
+    
+    // Hard-coded LEAPMOTOR variations
+    if (trimmed === 'LEAPMOTOR 03' || 
+        trimmed === 'LEAPMOTOR -' || 
+        trimmed === 'LEAPMOTOR .' || 
+        trimmed === 'LEAPMOTOR TOE') {
+        return 'LEAPMOTOR T03';
+    }
+    
+    return trimmed;
+}
 
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
@@ -137,8 +152,18 @@ function displayDailyResults(dateStr, data) {
         total = data.v1.cars.total || 0;
     }
     
+    // Normalize and aggregate model names
+    const normalizedModels = {};
+    Object.entries(models).forEach(([name, count]) => {
+        const normalizedName = normalizeModelName(name);
+        if (!normalizedModels[normalizedName]) {
+            normalizedModels[normalizedName] = 0;
+        }
+        normalizedModels[normalizedName] += count;
+    });
+    
     // Convert to array and sort
-    const modelsArray = Object.entries(models)
+    const modelsArray = Object.entries(normalizedModels)
         .map(([name, count]) => ({ name, count }))
         .sort((a, b) => b.count - a.count);
     
@@ -260,11 +285,13 @@ async function fetchAllDaysData() {
             if (Object.keys(models).length > 0) {
                 daysWithData++;
                 
+                // Normalize and aggregate model names
                 Object.entries(models).forEach(([model, count]) => {
-                    if (!allModels[model]) {
-                        allModels[model] = 0;
+                    const normalizedModel = normalizeModelName(model);
+                    if (!allModels[normalizedModel]) {
+                        allModels[normalizedModel] = 0;
                     }
-                    allModels[model] += count;
+                    allModels[normalizedModel] += count;
                 });
                 
                 totalCars += total;
