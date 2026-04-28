@@ -23,7 +23,8 @@ function normalizeModelName(modelName) {
     // Hard-coded LEAPMOTOR variations
     if (trimmed === 'LEAPMOTOR 03' || 
         trimmed === 'LEAPMOTOR -' || 
-        trimmed === 'LEAPMOTOR .' || 
+        trimmed === 'LEAPMOTOR .' ||
+        trimmed === 'LEAPMOTOR T0E' ||
         trimmed === 'LEAPMOTOR TOE') {
         return 'LEAPMOTOR T03';
     }
