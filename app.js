@@ -592,15 +592,19 @@ function renderMakersChart(data, timePeriod) {
             <select class="period-dropdown" onchange="updateMakersPeriod(this.value)">
     `;
     
-    // Add period options (last 12 for month, all for year)
+  // Add period options (last 12 for month, all for year) - REVERSED (most recent first)
     const displayPeriods = timePeriod === 'month' 
         ? periods.slice(-12) 
         : periods;
     
-    displayPeriods.forEach((period, idx) => {
-        const actualIdx = timePeriod === 'month' 
-            ? periods.length - 12 + idx 
-            : idx;
+    // Reverse the array to show most recent first
+    const reversedPeriods = [...displayPeriods].reverse();
+    
+    reversedPeriods.forEach((period, idx) => {
+        // Calculate actual index in original array
+        const actualIdx = timePeriod === 'month'
+            ? periods.length - 1 - idx
+            : periods.length - 1 - idx;
         const selected = actualIdx === latestPeriodIndex ? 'selected' : '';
         html += `<option value="${actualIdx}" ${selected}>${formatPeriod(period, timePeriod)}</option>`;
     });
@@ -811,24 +815,25 @@ function exportMakersToCSV() {
     
     const periods = data.periods;
     
-    // CSV Header - Periods as columns
-    let csv = 'Κατασκευαστής';
-    periods.forEach(period => {
-        csv += `,${formatPeriod(period, timePeriod)}`;
+    // CSV Header - Makers as columns (REVERSED)
+    let csv = 'Περίοδος';
+    MAKERS.forEach(maker => {
+        csv += `,"${maker.toUpperCase()}"`;
     });
     csv += '\n';
     
-    // CSV Data - Each maker as a row
-    MAKERS.forEach(maker => {
-        const values = data.data[maker] || [];
-        const displayName = maker.toUpperCase();
+    // CSV Data - Each period as a row, most recent first (REVERSED)
+    for (let i = periods.length - 1; i >= 0; i--) {
+        const period = periods[i];
+        csv += `"${formatPeriod(period, timePeriod)}"`;
         
-        csv += `"${displayName}"`;
-        values.forEach(value => {
-            csv += `,${value || 0}`;
+        MAKERS.forEach(maker => {
+            const values = data.data[maker] || [];
+            const value = values[i] || 0;
+            csv += `,${value}`;
         });
         csv += '\n';
-    });
+    }
     
     const timePeriodLabel = timePeriod === 'month' ? 'μηνιαια' : 'ετησια';
     const filename = `evstats-κατασκευαστες-${timePeriodLabel}.csv`;
